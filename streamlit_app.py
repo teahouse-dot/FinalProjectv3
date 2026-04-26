@@ -11,6 +11,9 @@ st.set_page_config(page_title="Health & Sleep Dashboard", layout="wide")
 
 st.title("Health & Sleep Analytics Dashboard")
 
+def fetch_data(query):
+    return conn.query(query)
+
 #### Retrieve filter values from the database
 @st.cache_data
 def get_filter_options():
