@@ -48,33 +48,38 @@ where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 st.header("Sleep Interference Factors")
 
 sleep_query = f"""
-SELECT sleep_cause, gender_desc AS gender, SUM(num_people) AS num_people
+SELECT sleep_cause, gender, SUM(num_people) AS num_people
 FROM (
-    SELECT 'stress' AS sleep_cause, g.gender_desc, (stress_sleep_id = 1) AS num_people
+    SELECT 'stress' AS sleep_cause, g.gender_desc AS gender, 
+           CASE WHEN s.stress_sleep_id = 1 THEN 1 ELSE 0 END AS num_people
     FROM sleep_fact s
     JOIN demographics_fact d ON s.fact_id = d.fact_id
     JOIN gender_dim g ON d.gender_id = g.gender_id
     {where_clause}
     UNION ALL
-    SELECT 'medication', g.gender_desc, (med_sleep_id = 1)
+    SELECT 'medication', g.gender_desc, 
+           CASE WHEN s.med_sleep_id = 1 THEN 1 ELSE 0 END
     FROM sleep_fact s
     JOIN demographics_fact d ON s.fact_id = d.fact_id
     JOIN gender_dim g ON d.gender_id = g.gender_id
     {where_clause}
     UNION ALL
-    SELECT 'pain', g.gender_desc, (pain_sleep_id = 1)
+    SELECT 'pain', g.gender_desc, 
+           CASE WHEN s.pain_sleep_id = 1 THEN 1 ELSE 0 END
     FROM sleep_fact s
     JOIN demographics_fact d ON s.fact_id = d.fact_id
     JOIN gender_dim g ON d.gender_id = g.gender_id
     {where_clause}
     UNION ALL
-    SELECT 'bathroom', g.gender_desc, (bathroom_sleep_id = 1)
+    SELECT 'bathroom', g.gender_desc, 
+           CASE WHEN s.bathroom_sleep_id = 1 THEN 1 ELSE 0 END
     FROM sleep_fact s
     JOIN demographics_fact d ON s.fact_id = d.fact_id
     JOIN gender_dim g ON d.gender_id = g.gender_id
     {where_clause}
     UNION ALL
-    SELECT 'Unknown', g.gender_desc, (unknown_sleep_id = 1)
+    SELECT 'Unknown', g.gender_desc, 
+           CASE WHEN s.unknown_sleep_id = 1 THEN 1 ELSE 0 END
     FROM sleep_fact s
     JOIN demographics_fact d ON s.fact_id = d.fact_id
     JOIN gender_dim g ON d.gender_id = g.gender_id
