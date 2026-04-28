@@ -43,66 +43,88 @@ if gender_filter != "All":
 
 where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
-#### Sleep Disruption causes
+################ Sleep Disruption causes ######################
+
 st.header("Sleep Interference Factors")
 
 sleep_query = f"""
-SELECT 'stress' AS sleep_cause, SUM(stress_sleep_id = 1) AS num_people
-FROM sleep_fact s
-JOIN demographics_fact d ON s.fact_id = d.fact_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
-{where_clause}
-UNION ALL
-SELECT 'medication', SUM(med_sleep_id = 1)
-FROM sleep_fact s
-JOIN demographics_fact d ON s.fact_id = d.fact_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
-{where_clause}
-UNION ALL
-SELECT 'pain', SUM(pain_sleep_id = 1)
-FROM sleep_fact s
-JOIN demographics_fact d ON s.fact_id = d.fact_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
-{where_clause}
-UNION ALL
-SELECT 'bathroom', SUM(bathroom_sleep_id = 1)
-FROM sleep_fact s
-JOIN demographics_fact d ON s.fact_id = d.fact_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
-{where_clause}
-UNION ALL
-SELECT 'Unknown', SUM(unknown_sleep_id = 1)
-FROM sleep_fact s
-JOIN demographics_fact d ON s.fact_id = d.fact_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
-{where_clause}
+SELECT sleep_cause, gender_desc AS gender, SUM(num_people) AS num_people
+FROM (
+    SELECT 'stress' AS sleep_cause, g.gender_desc, (stress_sleep_id = 1) AS num_people
+    FROM sleep_fact s
+    JOIN demographics_fact d ON s.fact_id = d.fact_id
+    JOIN gender_dim g ON d.gender_id = g.gender_id
+    {where_clause}
+    UNION ALL
+    SELECT 'medication', g.gender_desc, (med_sleep_id = 1)
+    FROM sleep_fact s
+    JOIN demographics_fact d ON s.fact_id = d.fact_id
+    JOIN gender_dim g ON d.gender_id = g.gender_id
+    {where_clause}
+    UNION ALL
+    SELECT 'pain', g.gender_desc, (pain_sleep_id = 1)
+    FROM sleep_fact s
+    JOIN demographics_fact d ON s.fact_id = d.fact_id
+    JOIN gender_dim g ON d.gender_id = g.gender_id
+    {where_clause}
+    UNION ALL
+    SELECT 'bathroom', g.gender_desc, (bathroom_sleep_id = 1)
+    FROM sleep_fact s
+    JOIN demographics_fact d ON s.fact_id = d.fact_id
+    JOIN gender_dim g ON d.gender_id = g.gender_id
+    {where_clause}
+    UNION ALL
+    SELECT 'Unknown', g.gender_desc, (unknown_sleep_id = 1)
+    FROM sleep_fact s
+    JOIN demographics_fact d ON s.fact_id = d.fact_id
+    JOIN gender_dim g ON d.gender_id = g.gender_id
+    {where_clause}
+) t
+GROUP BY sleep_cause, gender
 """
 
 sleep_df = fetch_data(sleep_query)
 
-# build pie chart
+# build stacked bar chart
+# calculate total number per sleep cause
+totals = sleep_df.groupby("sleep_cause")["num_people"].sum().reset_index()
+
+# get the causes in desc order based on total number
+cause_order = (totals.sort_values("num_people", ascending=False)["sleep_cause"].tolist())
+
+sleep_df["sleep_cause"] = pd.Categorical(sleep_df["sleep_cause"],
+                                         categories=cause_order,
+                                         ordered=True)
+
+sorted_sleep_df = sleep_df.sort_values(by=["sleep_cause", "gender"])
+
 col1, col2 = st.columns([2, 1])
 
 with col1:
     st.subheader("Sleep Disruption Causes")
 
-    sorted_sleep_df = sleep_df.sort_values(by="num_people", ascending=False)
+    fig = px.bar(sorted_sleep_df, x="sleep_cause", y="num_people",
+                 color="gender", category_orders={"sleep_cause": cause_order})
 
-    fig = px.bar(sorted_sleep_df, x="sleep_cause", y="num_people", text="num_people")
-
-    fig.update_traces(textposition="outside")
-
-    fig.update_layout(xaxis_title="Sleep Disruption Cause", 
+    fig.update_layout(barmode="stack",
+                      xaxis_title="Sleep Disruption Cause",
                       yaxis_title="Number of People")
+    
+    for _, row in totals.iterrows():
+        fig.add_annotation(x=row["sleep_cause"],
+                           y=row["num_people"],
+                           text=str(int(row["num_people"])),
+                           showarrow=False,
+                           yshift=8)
 
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     st.subheader("Data")
-    st.dataframe(sorted_sleep_df)
+    st.dataframe(sorted_sleep_df[["sleep_cause", "gender", "num_people"]])
 
 
-#### 2. Employment Status vs Doctor Visits
+############## Employment Status vs Doctor Visits ####################
 
 st.header("Employment Status vs Doctor Visits")
 
