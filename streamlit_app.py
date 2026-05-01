@@ -178,3 +178,12 @@ with col4:
     ascending=[True, True]).reset_index(drop=True)
 
     st.dataframe(sorted_visit_df)
+
+######## connection between sleep from stress and mental health (Matt) ######## 
+sleephealth = fetch_data("""SELECT sleep_desc, health_desc, COUNT(*) as count
+FROM health_fact JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
+JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id
+JOIN sleep_dim ON sleep_dim.sleep_id = sleep_fact.stress_sleep_id
+GROUP BY sleep_desc, mental_health_id""")
+
+st.line_chart(sleephealth, x="health_desc", y="count", color="sleep_desc")
