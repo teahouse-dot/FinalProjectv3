@@ -184,7 +184,7 @@ sleephealth = fetch_data(f"""SELECT sleep_desc, mental_health_id, health_desc, C
 FROM health_fact JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
 JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id
 JOIN sleep_dim ON sleep_dim.sleep_id = sleep_fact.stress_sleep_id
-JOIN demographics_fact d ON health_fact.fact_id = demographics_fact.fact_id
+JOIN demographics_fact ON health_fact.fact_id = demographics_fact.fact_id
 WHERE mental_health_id <> -1
 {where_clause}
 GROUP BY sleep_desc, mental_health_id, health_desc
