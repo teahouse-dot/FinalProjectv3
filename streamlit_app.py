@@ -255,3 +255,69 @@ fig.update_layout(
 
 st.plotly_chart(fig)
 
+################ Sleep from Stress vs Mental Health ######################
+
+st.header("Sleep from Stress and Mental Health")
+
+sleep_query = f"""
+SELECT 
+    sleep_desc, 
+    mental_health_id, 
+    health_desc, 
+    COUNT(*) AS count
+FROM health_fact
+JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
+JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id
+JOIN sleep_dim ON sleep_dim.sleep_id = sleep_fact.stress_sleep_id
+JOIN demographics_fact d ON health_fact.fact_id = d.fact_id
+JOIN gender_dim g ON d.gender_id = g.gender_id
+{where_clause}
+AND health_fact.mental_health_id <> -1
+GROUP BY sleep_desc, mental_health_id, health_desc
+ORDER BY mental_health_id DESC
+"""
+
+sleephealth_df = fetch_data(sleep_query)
+
+# sort data for display
+sorted_sleephealth_df = sleephealth_df.sort_values(
+    by=["mental_health_id", "sleep_desc"],
+    ascending=[True, True]
+).reset_index(drop=True)
+
+col1, col2 = st.columns([2, 1])
+
+with col1:
+    st.subheader("Sleep Trouble Due to Stress vs Mental Health")
+
+    fig = px.bar(
+        sorted_sleephealth_df,
+        x="mental_health_id",
+        y="count",
+        color="sleep_desc",
+        barmode="group",
+        text="count",
+        title="Is there a connection between sleep from stress and mental health?"
+    )
+
+    fig.update_traces(textposition="outside")
+
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[1, 2, 3, 4, 5],
+            ticktext=["Excellent", "Very Good", "Good", "Fair", "Poor"]
+        ),
+        xaxis_title="Mental Health",
+        yaxis_title="Number of People",
+        legend_title_text="Sleep trouble due to stress"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    st.subheader("Data")
+    st.dataframe(
+        sorted_sleephealth_df[["mental_health_id", "sleep_desc", "health_desc", "count"]]
+    )
+
