@@ -249,6 +249,7 @@ fig.update_layout(
         tickmode = 'array',
         tickvals = [1, 2, 3, 4, 5],
         ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor']
+        legend_title_text="Sleep Trouble due to stress"
     )
 )
 
