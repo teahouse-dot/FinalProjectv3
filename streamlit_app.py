@@ -179,6 +179,49 @@ with col4:
 
     st.dataframe(sorted_visit_df)
 
+#### 3. Doctor Visits by Race
+
+st.header("Doctor Visits by Race")
+
+race_query = f"""
+SELECT 
+    r.race AS race,
+    COUNT(*) AS num_people
+FROM health_fact h
+JOIN demographics_fact d ON h.fact_id = d.fact_id
+JOIN race_dim r ON d.race_id = r.race_id
+JOIN gender_dim g ON d.gender_id = g.gender_id
+{where_clause}
+GROUP BY r.race
+ORDER BY num_people DESC;
+"""
+
+race_df = fetch_data(race_query)
+
+# build pie chart
+col5, col6 = st.columns([2, 1])
+
+with col5:
+    st.subheader("Doctor Visits by Race")
+
+    fig = px.pie(
+        race_df,
+        names="race",
+        values="num_people",
+        title="Doctor Visits Distribution by Race"
+    )
+
+    fig.update_traces(textinfo='percent+label')
+
+    st.plotly_chart(fig, use_container_width=True)
+
+with col6:
+    st.subheader("Data")
+
+    sorted_race_df = race_df.sort_values(by="num_people", ascending=False).reset_index(drop=True)
+
+    st.dataframe(sorted_race_df)
+
 ######## connection between sleep from stress and mental health (Matt) ######## 
 sleephealth = fetch_data(f"""SELECT sleep_desc, mental_health_id, health_desc, COUNT(*) as count
 FROM health_fact JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
