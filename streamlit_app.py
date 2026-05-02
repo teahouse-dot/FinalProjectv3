@@ -181,6 +181,10 @@ with col4:
 
 #### 3. Doctor Visits by Race
 
+import streamlit as st
+import plotly.express as px
+import pandas as pd
+
 st.header("Doctor Visits by Race")
 
 race_query = f"""
@@ -190,7 +194,6 @@ SELECT
 FROM health_fact h
 JOIN demographics_fact d ON h.fact_id = d.fact_id
 JOIN race_dim r ON d.race_id = r.race_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
 {where_clause}
 GROUP BY r.race_desc
 ORDER BY num_people DESC;
@@ -198,26 +201,50 @@ ORDER BY num_people DESC;
 
 race_df = fetch_data(race_query)
 
+# Color mapping
+color_map = {
+    "White, Non-Hispanic": "#1f77b4",   # blue
+    "Black, Non-Hispanic": "#d62728",   # red
+    "Other, Non-Hispanic": "#9467bd",   # purple
+    "Hispanic": "#ff7f0e",              # orange
+    "2+ Races, Non-Hispanic": "#2ca02c" # green
+}
+
+# Optional: enforce consistent category order
+race_df["race"] = pd.Categorical(
+    race_df["race"],
+    categories=color_map.keys(),
+    ordered=True
+)
+
 col5, col6 = st.columns([2, 1])
 
 with col5:
-    st.subheader("Doctor Visits by Race")
+    st.subheader("Distribution")
 
     fig = px.pie(
         race_df,
         names="race",
         values="num_people",
-        title="Doctor Visits Distribution by Race"
+        title="Doctor Visits Distribution by Race",
+        color="race",
+        color_discrete_map=color_map
     )
 
-    fig.update_traces(textinfo='percent+label')
+    fig.update_traces(
+        textinfo='percent+label',
+        textposition='inside'
+    )
 
     st.plotly_chart(fig, use_container_width=True)
 
 with col6:
     st.subheader("Data")
 
-    sorted_race_df = race_df.sort_values(by="num_people", ascending=False).reset_index(drop=True)
+    sorted_race_df = race_df.sort_values(
+        by="num_people",
+        ascending=False
+    ).reset_index(drop=True)
 
     st.dataframe(sorted_race_df)
 
