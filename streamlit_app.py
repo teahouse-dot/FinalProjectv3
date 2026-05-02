@@ -331,14 +331,12 @@ with col1:
 with col2:
     st.subheader("Data")
 
-    display_df = sorted_sleephealth_df[[
+    display_df = sorted_sleephealth_df.sort_values(
+        by=["sleep_desc", "mental_health_id"]
+    ).reset_index(drop=True)[[
         "sleep_desc", "health_desc", "count", "percent"
     ]].copy()
 
     display_df["percent"] = display_df["percent"].round(2)
-
-    display_df = display_df.sort_values(
-        by=["sleep_desc", "mental_health_id"]
-    ).reset_index(drop=True)
 
     st.dataframe(display_df)
