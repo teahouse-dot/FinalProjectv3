@@ -298,7 +298,7 @@ with col1:
         y="percent",
         color="sleep_desc",
         markers=True,
-        title="How is mental health distributed within each sleep-from-stress category?"
+        text=sorted_sleephealth_df["percent"].round(1)
     )
 
     fig.update_layout(
@@ -316,8 +316,6 @@ with col1:
 
 with col2:
     st.subheader("Data")
-    display_df = sorted_sleephealth_df[[
-        "sleep_desc", "mental_health_id", "health_desc", "count", "percent"
-    ]].copy()
-    display_df["percent"] = display_df["percent"].round(2)
-    st.dataframe(display_df)
+    display_df = display_df.sort_values(
+    by=["sleep_desc", "mental_health_id"]
+).reset_index(drop=True)
