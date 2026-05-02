@@ -190,7 +190,7 @@ ORDER BY mental_health_id DESC
 
 ### https://docs.streamlit.io/develop/api-reference/charts/st.scatter_chart
 ### from https://plotly.com/python/tick-formatting/
-fig= px.line_chart(sleephealth, x="mental_health_id", y="count", color="sleep_desc")
+fig= px.line(sleephealth, x="mental_health_id", y="count", color="sleep_desc")
 
 fig.update_layout(
     xaxis = dict(
