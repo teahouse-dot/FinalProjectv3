@@ -195,7 +195,7 @@ fig= px.line(sleephealth, x="mental_health_id", y="count", color="sleep_desc")
 fig.update_layout(
     xaxis = dict(
         tickmode = 'array',
-        tickvals = [1, 2, 3, 4, 5, -1],
+        tickvals = [1, 2, 3, 4, 5, 6],
         ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Refused']
     )
 )
