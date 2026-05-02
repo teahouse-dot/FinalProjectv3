@@ -228,33 +228,6 @@ with col6:
     sorted_race_df = race_df.sort_values(by="num_people", ascending=False).reset_index(drop=True)
     st.dataframe(sorted_race_df)
 
-######## connection between sleep from stress and mental health (Matt) ######## 
-sleephealth = fetch_data(f"""SELECT sleep_desc, mental_health_id, health_desc, COUNT(*) as count
-FROM health_fact JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
-JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id AND health_fact.mental_health_id <> -1
-JOIN sleep_dim ON sleep_dim.sleep_id = sleep_fact.stress_sleep_id
-JOIN demographics_fact d ON health_fact.fact_id = d.fact_id
-JOIN gender_dim g ON d.gender_id = g.gender_id
-{where_clause}
-GROUP BY sleep_desc, mental_health_id, health_desc
-ORDER BY mental_health_id DESC
-""")
-
-### https://docs.streamlit.io/develop/api-reference/charts/st.scatter_chart
-### from https://plotly.com/python/tick-formatting/
-fig= px.line(sleephealth, x="mental_health_id", y="count", color="sleep_desc", title="Is there a connection between sleep from stress and mental health?")
-
-fig.update_layout(
-    xaxis = dict(
-        tickmode = 'array',
-        tickvals = [1, 2, 3, 4, 5],
-        ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor']
-    ),
-    legend_title_text="Sleep trouble due to stress"
-)
-
-st.plotly_chart(fig)
-
 ################ Sleep from Stress vs Mental Health ######################
 
 st.header("Sleep from Stress and Mental Health")
