@@ -182,10 +182,10 @@ with col4:
 ######## connection between sleep from stress and mental health (Matt) ######## 
 sleephealth = fetch_data(f"""SELECT sleep_desc, mental_health_id, health_desc, COUNT(*) as count
 FROM health_fact JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
-JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id
+JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id AND health_fact.mental_health_id <> -1
 JOIN sleep_dim ON sleep_dim.sleep_id = sleep_fact.stress_sleep_id
 JOIN demographics_fact ON health_fact.fact_id = demographics_fact.fact_id
-WHERE mental_health_id <> -1
+JOIN gender_dim ON demographics_fact.gender_id = gender_dim.gender_id
 {where_clause}
 GROUP BY sleep_desc, mental_health_id, health_desc
 ORDER BY mental_health_id DESC
