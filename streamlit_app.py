@@ -184,6 +184,7 @@ sleephealth = fetch_data("""SELECT sleep_desc, mental_health_id, health_desc, CO
 FROM health_fact JOIN sleep_fact ON health_fact.fact_id = sleep_fact.fact_id
 JOIN health_dim ON health_dim.health_id = health_fact.mental_health_id
 JOIN sleep_dim ON sleep_dim.sleep_id = sleep_fact.stress_sleep_id
+WHERE mental_health_id <> -1
 GROUP BY sleep_desc, mental_health_id, health_desc
 ORDER BY mental_health_id DESC
 """)
@@ -195,8 +196,8 @@ fig= px.line(sleephealth, x="mental_health_id", y="count", color="sleep_desc")
 fig.update_layout(
     xaxis = dict(
         tickmode = 'array',
-        tickvals = [1, 2, 3, 4, 5, 6],
-        ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Refused']
+        tickvals = [1, 2, 3, 4, 5]
+        ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor']
     )
 )
 
