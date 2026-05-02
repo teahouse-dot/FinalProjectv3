@@ -181,6 +181,8 @@ with col4:
 
 #### 3. Doctor Visits by Race
 
+st.header("Doctor Visits by Race")
+
 race_query = f"""
 SELECT 
     r.race_desc AS race,
@@ -193,6 +195,31 @@ JOIN gender_dim g ON d.gender_id = g.gender_id
 GROUP BY r.race_desc
 ORDER BY num_people DESC;
 """
+
+race_df = fetch_data(race_query)
+
+col5, col6 = st.columns([2, 1])
+
+with col5:
+    st.subheader("Doctor Visits by Race")
+
+    fig = px.pie(
+        race_df,
+        names="race",
+        values="num_people",
+        title="Doctor Visits Distribution by Race"
+    )
+
+    fig.update_traces(textinfo='percent+label')
+
+    st.plotly_chart(fig, use_container_width=True)
+
+with col6:
+    st.subheader("Data")
+
+    sorted_race_df = race_df.sort_values(by="num_people", ascending=False).reset_index(drop=True)
+
+    st.dataframe(sorted_race_df)
 
 ######## connection between sleep from stress and mental health (Matt) ######## 
 sleephealth = fetch_data(f"""SELECT sleep_desc, mental_health_id, health_desc, COUNT(*) as count
