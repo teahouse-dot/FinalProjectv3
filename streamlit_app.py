@@ -188,4 +188,15 @@ GROUP BY sleep_desc, mental_health_id, health_desc
 ORDER BY mental_health_id DESC
 """)
 
-st.line_chart(sleephealth, x="health_desc", y="count", color="sleep_desc")
+### https://docs.streamlit.io/develop/api-reference/charts/st.scatter_chart
+### from https://plotly.com/python/tick-formatting/
+fig= px.line_chart(sleephealth, x="mental_health_id", y="count", color="sleep_desc")
+
+fig.update_layout(
+    xaxis = dict(
+        tickmode = 'array',
+        tickvals = [1, 2, 3, 4, 5, -1],
+        ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor', 'Refused']
+    )
+)
+
