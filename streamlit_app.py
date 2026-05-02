@@ -179,7 +179,9 @@ with col4:
 
     st.dataframe(sorted_visit_df)
 
-#### 3. Doctor Visits by Race
+################ Doctor Visits by Race ######################
+
+st.header("Doctor Visits by Race")
 
 race_query = f"""
 SELECT 
@@ -196,7 +198,7 @@ ORDER BY num_people DESC;
 
 race_df = fetch_data(race_query)
 
-# Define a fixed color map for races
+# Fixed color map for races
 race_color_map = {
     "White, Non-Hispanic": "#1f77b4",
     "Black, Non-Hispanic": "#ff7f0e",
@@ -208,13 +210,12 @@ race_color_map = {
 col5, col6 = st.columns([2, 1])
 
 with col5:
-    st.subheader("Doctor Visits by Race")
+    st.subheader("Doctor Visits Distribution by Race")
     
     fig = px.pie(
         race_df,
         names="race",
         values="num_people",
-        title="Doctor Visits Distribution by Race",
         color="race",  # 
         color_discrete_map=race_color_map  # 
     )
