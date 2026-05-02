@@ -279,8 +279,8 @@ GROUP BY sleep_desc, mental_health_id, health_desc
 sleephealth_df = fetch_data(sleep_query)
 
 # --- Convert counts to percentages within each mental health group ---
-sleephealth_df["total_per_mh"] = sleephealth_df.groupby("mental_health_id")["count"].transform("sum")
-sleephealth_df["percent"] = (sleephealth_df["count"] / sleephealth_df["total_per_mh"]) * 100
+total = sleephealth_df["count"].sum()
+sleephealth_df["percent"] = (sleephealth_df["count"] / total) * 100
 
 # sort for clean display
 sorted_sleephealth_df = sleephealth_df.sort_values(
