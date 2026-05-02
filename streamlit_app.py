@@ -252,7 +252,6 @@ ORDER BY mental_health_id DESC
 
 sleephealth_df = fetch_data(sleep_query)
 
-# percent within each sleep category
 sleephealth_df["total_per_sleep"] = sleephealth_df.groupby("sleep_desc")["count"].transform("sum")
 sleephealth_df["percent"] = (sleephealth_df["count"] / sleephealth_df["total_per_sleep"]) * 100
 
@@ -285,7 +284,6 @@ with col1:
         legend_title_text="Sleep trouble due to stress"
     )
 
-    # label positioning (FIXED LOCATION)
     fig.update_traces(
         textposition="top center",
         selector=dict(name="No")
