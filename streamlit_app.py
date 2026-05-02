@@ -312,14 +312,33 @@ with col1:
         legend_title_text="Sleep trouble due to stress"
     )
 
+    # label positioning (FIXED LOCATION)
+    fig.update_traces(
+        textposition="top center",
+        selector=dict(name="No")
+    )
+
+    fig.update_traces(
+        textposition="bottom center",
+        selector=dict(name="Yes")
+    )
+
+    fig.update_traces(texttemplate="%{text}%")
+
     st.plotly_chart(fig, use_container_width=True)
+
 
 with col2:
     st.subheader("Data")
+
     display_df = sorted_sleephealth_df[[
-    "sleep_desc", "health_desc", "count", "percent"
-]].copy()
+        "sleep_desc", "health_desc", "count", "percent"
+    ]].copy()
 
-display_df["percent"] = display_df["percent"].round(2)
+    display_df["percent"] = display_df["percent"].round(2)
 
-st.dataframe(display_df)
+    display_df = display_df.sort_values(
+        by=["sleep_desc", "mental_health_id"]
+    ).reset_index(drop=True)
+
+    st.dataframe(display_df)
