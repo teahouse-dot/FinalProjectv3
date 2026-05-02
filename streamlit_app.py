@@ -181,10 +181,17 @@ with col4:
 
 #### 3. Doctor Visits by Race
 
-race_query = """
-SELECT *
-FROM demographics_fact
-LIMIT 5;
+race_query = f"""
+SELECT 
+    r.race_desc AS race,
+    COUNT(*) AS num_people
+FROM health_fact h
+JOIN demographics_fact d ON h.fact_id = d.fact_id
+JOIN race_dim r ON d.race_id = r.race_id
+JOIN gender_dim g ON d.gender_id = g.gender_id
+{where_clause}
+GROUP BY r.race_desc
+ORDER BY num_people DESC;
 """
 
 ######## connection between sleep from stress and mental health (Matt) ######## 
