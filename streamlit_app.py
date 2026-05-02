@@ -250,7 +250,7 @@ fig.update_layout(
         tickvals = [1, 2, 3, 4, 5],
         ticktext = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor']
     ),
-    legend_title_text="Sleep Trouble due to stress"
+    legend_title_text="Sleep trouble due to stress"
 )
 
 st.plotly_chart(fig)
