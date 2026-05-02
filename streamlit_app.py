@@ -274,23 +274,23 @@ JOIN gender_dim g ON d.gender_id = g.gender_id
 {where_clause}
 AND health_fact.mental_health_id <> -1
 GROUP BY sleep_desc, mental_health_id, health_desc
+ORDER BY mental_health_id DESC
 """
 
 sleephealth_df = fetch_data(sleep_query)
 
-# --- Convert counts to percentages within each mental health group ---
-total = sleephealth_df["count"].sum()
-sleephealth_df["percent"] = (sleephealth_df["count"] / total) * 100
+# percent within each sleep category
+sleephealth_df["total_per_sleep"] = sleephealth_df.groupby("sleep_desc")["count"].transform("sum")
+sleephealth_df["percent"] = (sleephealth_df["count"] / sleephealth_df["total_per_sleep"]) * 100
 
-# sort for clean display
 sorted_sleephealth_df = sleephealth_df.sort_values(
-    by=["mental_health_id", "sleep_desc"]
+    by=["sleep_desc", "mental_health_id"]
 ).reset_index(drop=True)
 
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.subheader("Sleep Trouble Due to Stress vs Mental Health (%)")
+    st.subheader("Mental Health Distribution Within Each Sleep Group (%)")
 
     fig = px.line(
         sorted_sleephealth_df,
@@ -298,7 +298,7 @@ with col1:
         y="percent",
         color="sleep_desc",
         markers=True,
-        title="Is there a connection between sleep from stress and mental health?"
+        title="How is mental health distributed within each sleep-from-stress category?"
     )
 
     fig.update_layout(
@@ -316,11 +316,8 @@ with col1:
 
 with col2:
     st.subheader("Data")
-
     display_df = sorted_sleephealth_df[[
-        "mental_health_id", "health_desc", "sleep_desc", "percent"
+        "sleep_desc", "mental_health_id", "health_desc", "count", "percent"
     ]].copy()
-
     display_df["percent"] = display_df["percent"].round(2)
-
     st.dataframe(display_df)
